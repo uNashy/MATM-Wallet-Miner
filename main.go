@@ -103,7 +103,7 @@ func getWallet(i int) {
 		publicKeyECDSA, _ := publicKey.(*ecdsa.PublicKey)
 		address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
 
-		client, _ := ethclient.Dial("https://mainnet.infura.io/v3/555a4b9f11044e26a7d14afe70a45934")
+		client, _ := ethclient.Dial("https://mainnet.infura.io/v3/3bca713bbbc7481891c93706be300636")
 		account := common.HexToAddress(address)
 		bal, _ := client.BalanceAt(context.Background(), account, nil)
 		balance, _ := strconv.Atoi(fmt.Sprint(bal))
