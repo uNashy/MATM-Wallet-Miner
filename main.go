@@ -10,8 +10,12 @@ import (
 	"strconv"
 	"context"
 	"math/big"
+	"io/ioutil"
 	"crypto/ecdsa"
 	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -28,6 +32,21 @@ import (
 )
 
 var node string = "https://rpc.ankr.com/eth" 
+var configFileName string = "config.json"
+
+var numCheck = regexp.MustCompile(`^[0-9]+$`)
+var addressCheck = regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
+
+var highMode string = "\n \033[31mHigh performance mode\033[0m"
+var mediumMode string = "\n \033[33mMedium performance mode\033[0m"
+var lowMode string = "\n \033[32mLow performance mode\033[0m"
+var customMode string = "\n \033[33mCustom threads mode\033[0m"
+
+type UserConfig struct {
+    Address string
+    Threads int
+	Mode string
+}
 
 func clear() {
 	cmd := exec.Command("cmd", "/c", "cls")
@@ -62,14 +81,21 @@ func checkNode() bool {
     }
 }
 
-func getProcesses() int {
-	var digitCheck = regexp.MustCompile(`^[0-9]+$`)
+func logHits(key string, address string, bal int) {
+	fmt.Println("[+] New hit > " + key + " | Balance ", bal)
+	f, _ := os.OpenFile("hits.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f.Write([]byte(fmt.Sprint("NEW HIT [ ", time.Now(), " ] Private Key: ", key, " | Address: ", address, " | Balance: ", bal, " ETH\n")))
+}
+
+
+func getProcesses() (int, string) {
 	for {
 		fmt.Print("\n Enter processes ammount (0 to detect automatically): ")
 		var pcs string
 		fmt.Scan(&pcs)
 		intPcs, _ := strconv.Atoi(pcs)
-		if digitCheck.MatchString(pcs) {
+		mode := customMode
+		if numCheck.MatchString(pcs) {
 			if intPcs == 0 {
 				fmt.Println(" Getting the specs from the computer...")
 				cpu, _ := cpu.Info()
@@ -84,19 +110,21 @@ func getProcesses() int {
 				fmt.Println(fmt.Sprint("\033[0m RAM size: \033[36m", ram, "mb\033[0m"))
 
 				if cores > 6 {
-					if ram > 8144 { pcsXcore = 33 } else { pcsXcore = 25 }
-				} else { if ram > 8144 { pcsXcore = 20 } else{ pcsXcore = 10 } }
+					if ram > 8144 { pcsXcore = 33; mode = highMode } else { pcsXcore = 25; mode = mediumMode}
+				} else { if ram > 8144 { pcsXcore = 20; mode = mediumMode } else { pcsXcore = 10; mode = lowMode} }
 				
 				fmt.Println("\n Calculating best settings for your pc...")				
+				time.Sleep(1*time.Second)
+				fmt.Println(mode)
 				intPcs = pcsXcore * int(cores)
 				time.Sleep(2*time.Second)
 				fmt.Println(fmt.Sprint("\n ", pcsXcore, " threads for each core > ", intPcs, " GoRutines total"))
 				time.Sleep(3*time.Second)
 
 			} else {
-				fmt.Println(" [~] Processes ammount set")
+				fmt.Println("\033[32m Processes ammount set\033[0m")
 			}
-			return intPcs
+			return intPcs, mode
 		} else {
 			fmt.Println("\033[31m Invalid input, try again\033[0m")
 		}
@@ -104,9 +132,8 @@ func getProcesses() int {
 }
 
 func getAddress() string {
-	re := regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
 	clip, _ := clipboard.ReadAll()
-	if re.MatchString(clip) {
+	if addressCheck.MatchString(clip) {
 		fmt.Println("\033[32m\n Address copied by clipboard \033[0m", clip)
 		return clip
 	} else {
@@ -114,7 +141,7 @@ func getAddress() string {
 			fmt.Print("\n Enter your ETH address: ")
 			var addr string
 			fmt.Scan(&addr)
-			if re.MatchString(addr) {
+			if addressCheck.MatchString(addr) {
 				fmt.Println("\033[32m Address accepted!\033[0m")
 				return addr
 			} else {
@@ -124,10 +151,18 @@ func getAddress() string {
 	}
 }
 
-func logHits(key string, address string, bal int) {
-	fmt.Println("[+] New hit > " + key + " | Balance ", bal)
-	f, _ := os.OpenFile("hits.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	f.Write([]byte(fmt.Sprint("NEW HIT [ ", time.Now(), " ] Private Key: ", key, " | Address: ", address, " | Balance: ", bal, " ETH\n")))
+func getChoice() bool {
+	for {
+		var choice string
+		fmt.Scan(&choice)
+		if strings.Contains("y", strings.ToLower(choice)) {
+			return true
+		} else if strings.Contains("n", strings.ToLower(choice)) {
+			return false
+		} else {
+			fmt.Println("\033[31m Invalid input, try again\033[0m")
+		}
+	}
 }
 
 func getWallet(i int, addr string) {
@@ -203,16 +238,63 @@ func sendTransaction(rawTx string) {
 	}
 }
 
+func checkMode(str string) bool { for _, v := range []string{highMode, mediumMode, lowMode, customMode} { if v == str { return true } }
+    return false
+}
+
+
+func readConfig() (string, int, string){
+    content, _ := ioutil.ReadFile(configFileName)
+
+    var config UserConfig
+    json.Unmarshal(content, &config)
+
+    return config.Address, config.Threads, config.Mode
+}
+
+func writeConfig(address string, threads int, mode string) {
+	data := UserConfig{
+        Address: address,
+        Threads: threads,
+		Mode: mode,
+    }
+	file, _ := json.MarshalIndent(data, "", "  ")
+	_ = ioutil.WriteFile(configFileName, file, 0644)
+}
+
+func newConfig() (string, int, string) {
+	addr := getAddress()
+	pcs, mode := getProcesses()
+	writeConfig(addr, pcs, mode)
+	
+	return addr, pcs, mode
+}
+
 func main() {
 	setTitle("MATM Wallet Miner ")
 	clear()
 	fmt.Printf("\n\033[0m                                                      Welcome back\n")
 	fmt.Println("\n Checking " + node + " for connection...")
+	addr, pcs, mode := "", 0, ""
 	if checkNode() {
 		time.Sleep(1*time.Second)
 		fmt.Println("\033[32m Connection established!\033[0m")
-		addr := getAddress()
-		pcs := getProcesses()
+		_, err := os.OpenFile(configFileName, os.O_WRONLY, 0664)
+		if errors.Is(err, os.ErrNotExist) {
+			fmt.Println("\033[31m config.json not found!\033[0m")
+			addr, pcs, mode = newConfig()		
+		} else {
+			addr, pcs, mode = readConfig()
+			if ! addressCheck.MatchString(addr) || ! numCheck.MatchString(strconv.Itoa(pcs)) || ! checkMode(mode) {
+				fmt.Println("\033[31m config.json found but corrupt!\033[0m")
+				addr, pcs, mode = newConfig()
+			} else {
+				fmt.Print("\033[32m Valid config.json found!\033[0m Want use it? [y/n] ")
+				if ! getChoice() {
+					addr, pcs, mode = newConfig()
+				}
+			}
+		}
 		clear()
 		fmt.Println("\n GoRutines ammount:", pcs)
 		for i := 0; i < pcs; i++ {
