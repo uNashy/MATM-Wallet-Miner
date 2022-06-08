@@ -6,30 +6,34 @@ import (
 	"time"
 	"bytes"
 	"regexp"
+	"errors"
+	"strings"
 	"os/exec"
 	"strconv"
 	"context"
+	"net/http"
 	"math/big"
 	"io/ioutil"
 	"crypto/ecdsa"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
-	"strings"
+	
+	"github.com/atotto/clipboard"
+	"github.com/shirou/gopsutil/mem"
+	"github.com/shirou/gopsutil/cpu"
+	
+	"github.com/admin100/util/console"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
     "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
-
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/mem"
-
-	"github.com/atotto/clipboard"
-
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
+
+var currentVersion = 1.5
+var updatesUrl = "https://raw.githubusercontent.com/uNashy/MATM-Wallet-Miner/main/VERSION_INFO"
 
 var node string = "https://rpc.ankr.com/eth" 
 var configFileName string = "config.json"
@@ -42,10 +46,20 @@ var mediumMode string = "\n \033[33mMedium performance mode\033[0m"
 var lowMode string = "\n \033[32mLow performance mode\033[0m"
 var customMode string = "\n \033[33mCustom threads mode\033[0m"
 
+var checkAddress string  = "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+
+var gens int = 0
+
 type UserConfig struct {
     Address string
     Threads int
 	Mode string
+	BotToken string
+}
+
+type Spinner struct {
+    message string
+    i int
 }
 
 func clear() {
@@ -64,14 +78,9 @@ func clear() {
 	fmt.Println("                        ░         ░  ░               ░             ░    ░           ░    ░  ░   ░     \033[0m")
 }
 
-func setTitle(title string) {
-	cmd := exec.Command("cmd", "/C", "title", title)
-	cmd.Run()
-}
-
 func checkNode() bool {
 	client, _ := ethclient.Dial(node)
-    account := common.HexToAddress("0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf")
+    account := common.HexToAddress(checkAddress)
     bal, _ := client.BalanceAt(context.Background(), account, nil)
     balance, _ := strconv.Atoi(fmt.Sprint(bal))
 	if balance > 0 {
@@ -81,12 +90,35 @@ func checkNode() bool {
     }
 }
 
+func checkForUpdates() {
+	fmt.Println(" Checking for updates...")
+	time.Sleep(1*time.Second)
+	resp, _ := http.Get(updatesUrl)
+	body, _ := ioutil.ReadAll(resp.Body)
+	floatNum, _ := strconv.ParseFloat(strings.TrimSpace(string(body)), 64)  
+	if floatNum > currentVersion { fmt.Println(fmt.Sprint("\033[36m Update available\033[0m > New version: ", floatNum)) } else { fmt.Println("\033[32m No updates available\033[0m") }
+
+}
+
 func logHits(key string, address string, bal int) {
 	fmt.Println("[+] New hit > " + key + " | Balance ", bal)
+
 	f, _ := os.OpenFile("hits.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	f.Write([]byte(fmt.Sprint("NEW HIT [ ", time.Now(), " ] Private Key: ", key, " | Address: ", address, " | Balance: ", bal, " ETH\n")))
 }
 
+func setPriorityProcess() {
+	pid := os.Getpid()
+	fmt.Println("\n Setting up process", pid ,"priority to High...")
+	cmd := exec.Command("cmd", "/c", fmt.Sprint("wmic process where processid='", pid, "' CALL setpriority '256'"))
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("\033[31m Failed to set high priority\033[0m")
+	} else {
+		fmt.Println("\033[32m Process high priority set\033[0m")
+	}
+	
+}
 
 func getProcesses() (int, string) {
 	for {
@@ -110,15 +142,15 @@ func getProcesses() (int, string) {
 				fmt.Println(fmt.Sprint("\033[0m RAM size: \033[36m", ram, "mb\033[0m"))
 
 				if cores > 6 {
-					if ram > 8144 { pcsXcore = 33; mode = highMode } else { pcsXcore = 25; mode = mediumMode}
-				} else { if ram > 8144 { pcsXcore = 20; mode = mediumMode } else { pcsXcore = 10; mode = lowMode} }
+					if ram > 8144 { pcsXcore = 45; mode = highMode } else { pcsXcore = 39; mode = mediumMode}
+				} else { if ram > 8144 { pcsXcore = 32; mode = mediumMode } else { pcsXcore = 21; mode = lowMode} }
 				
 				fmt.Println("\n Calculating best settings for your pc...")				
 				time.Sleep(1*time.Second)
 				fmt.Println(mode)
 				intPcs = pcsXcore * int(cores)
 				time.Sleep(2*time.Second)
-				fmt.Println(fmt.Sprint("\n ", pcsXcore, " threads for each core > ", intPcs, " GoRutines total"))
+				fmt.Println(fmt.Sprint(" ", pcsXcore, " threads for each core > ", intPcs, " GoRutines total"))
 				time.Sleep(3*time.Second)
 
 			} else {
@@ -134,7 +166,7 @@ func getProcesses() (int, string) {
 func getAddress() string {
 	clip, _ := clipboard.ReadAll()
 	if addressCheck.MatchString(clip) {
-		fmt.Println("\033[32m\n Address copied by clipboard \033[0m", clip)
+		fmt.Println("\033[32m\n Address copied by clipboard:\033[0m", clip)
 		return clip
 	} else {
 		for {
@@ -165,6 +197,7 @@ func getChoice() bool {
 	}
 }
 
+
 func getWallet(i int, addr string) {
 	for {
 		privateKey, _ := crypto.GenerateKey()
@@ -178,13 +211,14 @@ func getWallet(i int, addr string) {
 		account := common.HexToAddress(address)
 		bal, _ := client.BalanceAt(context.Background(), account, nil)
 		balance, _ := strconv.Atoi(fmt.Sprint(bal))
-		title := fmt.Sprint("MATM Wallet Miner | Balance ", balance, " ETH  | Cracking ", key)
-
+		
 		if balance > 0 {
 			createRawTransaction(key, addr, balance*1000000000000000000)
-			logHits(key, address, balance)
+			logHits(key, address, balance*1000000000000000000)
 		}
-		setTitle(title)
+		gens = gens + 1
+		title := fmt.Sprint("MATM Wallet Miner | Balance ", balance*1000000000000000000, " ETH | Generated ", gens, " | Cracking ", key)
+		console.SetConsoleTitle(title)
 	}
 }
 
@@ -242,7 +276,6 @@ func checkMode(str string) bool { for _, v := range []string{highMode, mediumMod
     return false
 }
 
-
 func readConfig() (string, int, string){
     content, _ := ioutil.ReadFile(configFileName)
 
@@ -271,36 +304,39 @@ func newConfig() (string, int, string) {
 }
 
 func main() {
-	setTitle("MATM Wallet Miner ")
+	console.SetConsoleTitle(fmt.Sprint("MATM Wallet Miner | Version: ", currentVersion))
 	clear()
 	fmt.Printf("\n\033[0m                                                      Welcome back\n")
+	checkForUpdates()
 	fmt.Println("\n Checking " + node + " for connection...")
 	addr, pcs, mode := "", 0, ""
 	if checkNode() {
 		time.Sleep(1*time.Second)
 		fmt.Println("\033[32m Connection established!\033[0m")
+		setPriorityProcess()
 		_, err := os.OpenFile(configFileName, os.O_WRONLY, 0664)
 		if errors.Is(err, os.ErrNotExist) {
-			fmt.Println("\033[31m config.json not found!\033[0m")
+			fmt.Println("\033[31m\n config.json not found!\033[0m")
 			addr, pcs, mode = newConfig()		
 		} else {
 			addr, pcs, mode = readConfig()
 			if ! addressCheck.MatchString(addr) || ! numCheck.MatchString(strconv.Itoa(pcs)) || ! checkMode(mode) {
-				fmt.Println("\033[31m config.json found but corrupt!\033[0m")
+				fmt.Println("\033[31m\n config.json found but corrupt!\033[0m")
 				addr, pcs, mode = newConfig()
 			} else {
-				fmt.Print("\033[32m Valid config.json found!\033[0m Want use it? [y/n] ")
-				if ! getChoice() {
-					addr, pcs, mode = newConfig()
-				}
+				fmt.Print("\033[32m\n Valid config.json found!\033[0m Want use it? [y/n] ")
+				if ! getChoice() { addr, pcs, mode = newConfig() }
 			}
 		}
 		clear()
 		fmt.Println("\n GoRutines ammount:", pcs)
+		fmt.Println(mode)
+		
 		for i := 0; i < pcs; i++ {
 			go getWallet(i, addr) 
 		}
 		fmt.Println("\n\033[32m Threads spawning completed\033[0m \n Sleeping Main routine...\n\n")
+
 		for { }
 	} else {
 		fmt.Println("\033[31m Connection unavailable... Let's try again in 5 seconds\033[0m")
