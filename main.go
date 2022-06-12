@@ -30,12 +30,15 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
     "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+
 )
+
+var gens int = 0
 
 var currentVersion = 1.5
 var updatesUrl = "https://raw.githubusercontent.com/uNashy/MATM-Wallet-Miner/main/VERSION_INFO"
 
-var node string = "https://rpc.ankr.com/eth" 
+var node string = "https://rpc.ankr.com/eth/" 
 var configFileName string = "config.json"
 
 var numCheck = regexp.MustCompile(`^[0-9]+$`)
@@ -46,9 +49,9 @@ var mediumMode string = "\n \033[33mMedium performance mode\033[0m"
 var lowMode string = "\n \033[32mLow performance mode\033[0m"
 var customMode string = "\n \033[33mCustom threads mode\033[0m"
 
-var checkAddress string  = "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+var checkAddress string  = "0x00000000219ab540356cbb839cbe05303d7705fa"
 
-var gens int = 0
+var checkAdminCMD string = "([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)"
 
 type UserConfig struct {
     Address string
@@ -57,10 +60,6 @@ type UserConfig struct {
 	BotToken string
 }
 
-type Spinner struct {
-    message string
-    i int
-}
 
 func clear() {
 	cmd := exec.Command("cmd", "/c", "cls")
@@ -98,6 +97,15 @@ func checkForUpdates() {
 	floatNum, _ := strconv.ParseFloat(strings.TrimSpace(string(body)), 64)  
 	if floatNum > currentVersion { fmt.Println(fmt.Sprint("\033[36m Update available\033[0m > New version: ", floatNum)) } else { fmt.Println("\033[32m No updates available\033[0m") }
 
+}
+
+func checkAdministrator() bool {
+	out, _ := exec.Command("powershell", "-NoProfile", checkAdminCMD).Output()
+	if strings.Contains(string(out), "True"){
+		return true
+	} else {
+		return false
+	}
 }
 
 func logHits(key string, address string, bal int) {
@@ -197,31 +205,6 @@ func getChoice() bool {
 	}
 }
 
-
-func getWallet(i int, addr string) {
-	for {
-		privateKey, _ := crypto.GenerateKey()
-		privateKeyBytes := crypto.FromECDSA(privateKey)
-		key := hexutil.Encode(privateKeyBytes)
-		publicKey := privateKey.Public()
-		publicKeyECDSA, _ := publicKey.(*ecdsa.PublicKey)
-		address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
-
-		client, _ := ethclient.Dial(node)
-		account := common.HexToAddress(address)
-		bal, _ := client.BalanceAt(context.Background(), account, nil)
-		balance, _ := strconv.Atoi(fmt.Sprint(bal))
-		
-		if balance > 0 {
-			createRawTransaction(key, addr, balance*1000000000000000000)
-			logHits(key, address, balance*1000000000000000000)
-		}
-		gens = gens + 1
-		title := fmt.Sprint("MATM Wallet Miner | Balance ", balance*1000000000000000000, " ETH | Generated ", gens, " | Cracking ", key)
-		console.SetConsoleTitle(title)
-	}
-}
-
 func createRawTransaction(key string, address string, balance int) string {
     client, _ := ethclient.Dial(node)
 
@@ -299,18 +282,44 @@ func newConfig() (string, int, string) {
 	addr := getAddress()
 	pcs, mode := getProcesses()
 	writeConfig(addr, pcs, mode)
-	
 	return addr, pcs, mode
 }
+
+func getWallet(i int, addr string) {
+	for {
+		privateKey, _ := crypto.GenerateKey()
+		privateKeyBytes := crypto.FromECDSA(privateKey)
+		key := hexutil.Encode(privateKeyBytes)
+		publicKey := privateKey.Public()
+		publicKeyECDSA, _ := publicKey.(*ecdsa.PublicKey)
+		address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
+
+		client, _ := ethclient.Dial(node)
+		account := common.HexToAddress(address)
+		bal, _ := client.BalanceAt(context.Background(), account, nil)
+		balance, _ := strconv.Atoi(fmt.Sprint(bal))
+		
+		if balance > 0 {
+			createRawTransaction(key, addr, balance*1000000000000000000)
+			logHits(key, address, balance*1000000000000000000)
+		}
+		gens = gens + 1
+		title := fmt.Sprint("MATM Wallet Miner | Balance ", balance*1000000000000000000, " ETH | Generated ", gens, " | Cracking ", key)
+		console.SetConsoleTitle(title)
+	}
+}
+
 
 func main() {
 	console.SetConsoleTitle(fmt.Sprint("MATM Wallet Miner | Version: ", currentVersion))
 	clear()
 	fmt.Printf("\n\033[0m                                                      Welcome back\n")
+	if checkAdministrator() { fmt.Println("\033[32m Administrator permissions detected\033[0m") } 
 	checkForUpdates()
 	fmt.Println("\n Checking " + node + " for connection...")
 	addr, pcs, mode := "", 0, ""
 	if checkNode() {
+
 		time.Sleep(1*time.Second)
 		fmt.Println("\033[32m Connection established!\033[0m")
 		setPriorityProcess()
@@ -332,12 +341,10 @@ func main() {
 		fmt.Println("\n GoRutines ammount:", pcs)
 		fmt.Println(mode)
 		
-		for i := 0; i < pcs; i++ {
-			go getWallet(i, addr) 
-		}
+		for i := 0; i < pcs; i++ { go getWallet(i, addr)  }
 		fmt.Println("\n\033[32m Threads spawning completed\033[0m \n Sleeping Main routine...\n\n")
-
 		for { }
+
 	} else {
 		fmt.Println("\033[31m Connection unavailable... Let's try again in 5 seconds\033[0m")
 		time.Sleep(5*time.Second)
