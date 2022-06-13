@@ -49,6 +49,13 @@ and
 ```
 gdb -–version
 ```
+If you see an error then repeat the whole process. Otherwise you can continue with the guide
+
+Open new terminal, go to the software folder and run
+```
+
+```
+
 <details><summary>FAQ</summary>
 <p>
 __How does it work?__
