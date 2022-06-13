@@ -36,23 +36,8 @@ pacman -Syu
 pacman -Su
 ```
 
-\n open C:\msys64\mingw64.exe and run 
-###### x64
-```
-pacman -S mingw-w64-x86_64-gcc
-```
+Open C:\msys64\mingw64.exe and run 
 
-```
-pacman -S mingw-w64-x86_64-gdb
-```
-
-###### x86
-```
-pacman -S mingw-w64-i686-gcc
-```
-```
-pacman -S mingw-w64-i686-gdb
-```
 | 32 bit          | 64 bit            |
 |     :---:    |     :---:      |
 | ```pacman -S mingw-w64-i686-gcc```   | ```pacman -S mingw-w64-x86_64-gcc```     |
