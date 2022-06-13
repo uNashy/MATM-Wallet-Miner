@@ -53,8 +53,10 @@ If you see an error then repeat the whole process. Otherwise you can continue wi
 
 Open new terminal, go to the software folder and run
 ```
-
+go build main.go
 ```
+If you don't see any output the compilation was successful and you should be able to see the main.exe file in the folder.
+
 
 <details><summary>FAQ</summary>
 <p>
