@@ -25,7 +25,7 @@ pacman -Syu
 pacman -Su
 ```
 
-Open C:\msys64\mingw64.exe and run: 
+Open C:\msys64\mingw64.exe and run these 2 commands: 
 
 | 32 bit          | 64 bit            |
 |     :---:    |     :---:      |
@@ -39,10 +39,16 @@ Now we need to add the gcc directory to the environment variables, to do that we
 |     :---:    |     :---:      |
 | ```C:\msys64\mingw64\bin```   | ```C:\msys64\mingw32\bin```     |
 
-Once found, open the advanced system properties and click on environment variables.
+Once found add it to your PATH variable from advanced system properties.
 
-![This is an image](./docs/1.png)
-
+To verify correct installation run:
+```
+gcc –version
+```
+and
+```
+gdb –version
+```
 <details><summary>FAQ</summary>
 <p>
 __How does it work?__
