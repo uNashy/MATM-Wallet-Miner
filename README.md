@@ -31,6 +31,7 @@ Open C:\msys64\mingw64.exe and run:
 | ```pacman -S mingw-w64-i686-gcc```   | ```pacman -S mingw-w64-x86_64-gcc```     |
 | ```pacman -S mingw-w64-i686-gcc```     | ```pacman -S mingw-w64-x86_64-gdb```       |
 
+
 Now we need to add the gcc directory to the environment variables, to do that we need to find its location. Commonly found in:
 
 | 32 bit          | 64 bit            |
