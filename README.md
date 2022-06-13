@@ -62,6 +62,8 @@ If you don't see any output the compiling process was successful and you should 
 
 <details><summary>FAQ</summary>
 <p>
+  
+  
 **How does it work?**
   
 > The software generates hexadecimal sequences of 32 bytes each, which will create a key.
