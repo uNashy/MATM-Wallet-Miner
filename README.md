@@ -63,7 +63,6 @@ If you don't see any output the compiling process was successful and you should 
 <details><summary>FAQ</summary>
 <p>
 __How does it work?__
-  
 > The software generates hexadecimal sequences of 32 bytes each, which will create a key.
 The key will then be controlled by the software using free nodes (https://rpc.ankr.com/eth) which will return the wallet balance.
 If it is greater than 0 it will mark it as valid.
