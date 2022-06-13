@@ -1,4 +1,4 @@
-# MATM-Wallet-Miner
+# MATM Wallet Miner
 MATM Wallet Miner is an open source project developed in GO.
 
 __How does it work?__
