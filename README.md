@@ -53,7 +53,7 @@ pacman -S mingw-w64-i686-gcc
 ```
 pacman -S mingw-w64-i686-gdb
 ```
-| Left-aligned | Center-aligned |
-| :---         |     :---:      |
+| x32          | x64            |
+|     :---:    |     :---:      |
 | git status   | git status     |
 | git diff     | git diff       |
