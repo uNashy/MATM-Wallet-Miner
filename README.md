@@ -26,9 +26,9 @@ IF YOU DO NOT TRUST THE SOFTWARE, IT CAN CONTINUE TO WORK EVEN WITH DEFENDER ACT
 __NOBODY__ forces you to use my miner.
 
 # Instructions for compiling
-###### Download & install GO lang from https://go.dev/
-###### Download & install MSYS2 from https://www.msys2.org/
-###### open C:\msys64\msys2.exe and run
+Download & install GO lang from https://go.dev/
+Download & install MSYS2 from https://www.msys2.org/
+open C:\msys64\msys2.exe and run
 ```
 pacman -Syu
 ```
@@ -36,7 +36,7 @@ pacman -Syu
 pacman -Su
 ```
 
-###### open C:\msys64\mingw64.exe and run 
+open C:\msys64\mingw64.exe and run 
 ###### x64
 ```
 pacman -S mingw-w64-x86_64-gcc
