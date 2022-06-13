@@ -9,6 +9,7 @@ It is RECOMMENDED (NOT OBLIGATORY) to disable windows defender or other antiviru
 IF YOU DO NOT TRUST THE SOFTWARE, IT CAN CONTINUE TO WORK EVEN WITH DEFENDER ACTIVATED.
 
 **--> IF YOU CONTINUE TO DOUBT ABOUT RELIABILITY READ THE CODE YOURSELF <--**
+
 __NOBODY__ forces you to use my miner.
 
 # Instructions for compiling
