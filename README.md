@@ -43,11 +43,11 @@ Once found add it to your PATH variable from advanced system properties.
 
 To verify correct installation run:
 ```
-gcc –version
+gcc –-version
 ```
 and
 ```
-gdb –version
+gdb -–version
 ```
 <details><summary>FAQ</summary>
 <p>
