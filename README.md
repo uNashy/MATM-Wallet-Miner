@@ -1,6 +1,8 @@
 # MATM Wallet Miner
 MATM Wallet Miner is an open source project developed in GO.
 
+<details><summary>FAQ</summary>
+<p>
 __How does it work?__
 > The software generates hexadecimal sequences of 32 bytes each, which will create a key.
 The key will then be controlled by the software using free nodes (https://rpc.ankr.com/eth) which will return the wallet balance.
@@ -17,6 +19,9 @@ The higher the amount you choose, the faster the program will generate new keys.
 
 Too many Threads can create inconvenience to your computer,
 if you are unsure about the right amount for you just type 0 when prompted and the program will automatically detect the best settings for you.
+</p>
+</details>
+
 
 ## ATTENTION
 It is RECOMMENDED (NOT OBLIGATORY) to disable windows defender or other antivirus when the miner is running as they limit the usable resources of the computer.
