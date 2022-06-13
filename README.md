@@ -29,6 +29,6 @@ __NOBODY__ forces you to use my miner.
 ###### Download & install GO lang from https://go.dev/
 ###### Download & install MSYS2 from https://www.msys2.org/
 ###### open C:\msys64\msys2.exe
-'''
+```
 pacman -Syu
-'''
+```
