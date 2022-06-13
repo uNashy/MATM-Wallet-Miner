@@ -53,7 +53,7 @@ pacman -S mingw-w64-i686-gcc
 ```
 pacman -S mingw-w64-i686-gdb
 ```
-| x32          | x64            |
+| 32 bit          | 64 bit            |
 |     :---:    |     :---:      |
 | ```pacman -S mingw-w64-i686-gcc```   | ```pacman -S mingw-w64-x86_64-gcc```     |
 | ```pacman -S mingw-w64-i686-gcc```     | ```pacman -S mingw-w64-x86_64-gdb```       |
