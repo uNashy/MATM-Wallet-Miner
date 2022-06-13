@@ -38,8 +38,9 @@ Now we need to add the gcc directory to the environment variables, to do that we
 |     :---:    |     :---:      |
 | ```C:\msys64\mingw64\bin```   | ```C:\msys64\mingw32\bin```     |
 
-Once found, open the advanced system properties and click on environment variables
-![This is an image](/docs/1.png)
+Once found, open the advanced system properties and click on environment variables.
+
+![This is an image](./docs/1.png)
 
 <details><summary>FAQ</summary>
 <p>
