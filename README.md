@@ -55,5 +55,6 @@ pacman -S mingw-w64-i686-gdb
 ```
 | x32          | x64            |
 |     :---:    |     :---:      |
-| ```git status```   | git status     |
-| git diff     | git diff       |
+| ```pacman -S mingw-w64-i686-gcc```   | ```pacman -S mingw-w64-x86_64-gcc```     |
+| ```pacman -S mingw-w64-i686-gcc```     | ```pacman -S mingw-w64-x86_64-gdb```       |
+
