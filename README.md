@@ -12,6 +12,8 @@ IF YOU DO NOT TRUST THE SOFTWARE, IT CAN CONTINUE TO WORK EVEN WITH DEFENDER ACT
 
 __NOBODY__ forces you to use my miner.
 
+A lot of people ask me why I distribute my software for free instead of charging me. Why not? on tiktok is full of scammers who just want to infect computers. I would have preferred to keep the source code private but then no one would have trusted it and the project would have died. If you continue not to trust remember that no one forces you to use it, you can check the code or compile it following the instructions below or start the complete build.
+
 # Instructions for compiling
 Download & install GO lang from https://go.dev/
 
