@@ -29,7 +29,7 @@ Open C:\msys64\mingw64.exe and run
 | ```pacman -S mingw-w64-i686-gcc```   | ```pacman -S mingw-w64-x86_64-gcc```     |
 | ```pacman -S mingw-w64-i686-gcc```     | ```pacman -S mingw-w64-x86_64-gdb```       |
 
-<details><summary>## FAQ</summary>
+<details><summary>FAQ</summary>
 <p>
 __How does it work?__
 > The software generates hexadecimal sequences of 32 bytes each, which will create a key.
