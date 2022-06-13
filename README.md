@@ -31,8 +31,11 @@ __NOBODY__ forces you to use my miner.
 ###### open C:\msys64\msys2.exe and run
 ```
 pacman -Syu
+```
+```
 pacman -Su
 ```
+
 ###### open C:\msys64\mingw64.exe and run
 ```
 pacman -S mingw-w64-x86_64-gcc
