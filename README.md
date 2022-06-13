@@ -16,7 +16,7 @@ Download & install GO lang from https://go.dev/
 
 Download & install MSYS2 from https://www.msys2.org/
 
-**open C:\msys64\msys2.exe and run**
+Open C:\msys64\msys2.exe and run
 ```
 pacman -Syu
 ```
