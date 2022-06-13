@@ -26,6 +26,6 @@ IF YOU DO NOT TRUST THE SOFTWARE, IT CAN CONTINUE TO WORK EVEN WITH DEFENDER ACT
 __NOBODY__ forces you to use my miner.
 
 # Instructions for compiling
-> Download & install GO lang from https://go.dev/
-> Download & install MYSIS2 from https://www.msys2.org/
-> 
+###### Download & install GO lang from https://go.dev/
+###### Download & install MSYS2 from https://www.msys2.org/
+> open 
