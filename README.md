@@ -16,7 +16,7 @@ Download & install GO lang from https://go.dev/
 
 Download & install MSYS2 from https://www.msys2.org/
 
-Open C:\msys64\msys2.exe and run
+Open C:\msys64\msys2.exe and run:
 ```
 pacman -Syu
 ```
@@ -24,13 +24,18 @@ pacman -Syu
 pacman -Su
 ```
 
-Open C:\msys64\mingw64.exe and run 
+Open C:\msys64\mingw64.exe and run: 
 
 | 32 bit          | 64 bit            |
 |     :---:    |     :---:      |
 | ```pacman -S mingw-w64-i686-gcc```   | ```pacman -S mingw-w64-x86_64-gcc```     |
 | ```pacman -S mingw-w64-i686-gcc```     | ```pacman -S mingw-w64-x86_64-gdb```       |
 
+Now we need to add the gcc directory to the environment variables, to do that we need to find its location. Commonly found in:
+
+| 32 bit          | 64 bit            |
+|     :---:    |     :---:      |
+| ```C:\msys64\mingw64\bin```   | ```C:\msys64\mingw32\bin```     |
 
 
 <details><summary>FAQ</summary>
