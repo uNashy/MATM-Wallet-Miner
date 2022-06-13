@@ -18,11 +18,12 @@ What are Threads and GoRutines?
 Threads (also called GoRoutine) are child processes of the main (Main routine).
 The higher the amount you choose, the faster the program will generate new keys.
 
-ATTENTION
 Too many Threads can create inconvenience to your computer,
 if you are unsure about the right amount for you just type 0 when prompted and the program will automatically detect the best settings for you.
 
+ ---- ATTENTION ----
 It is RECOMMENDED (NOT OBLIGATORY) to disable windows defender or other antivirus when the miner is running as they limit the usable resources of the computer.
 IF YOU DO NOT TRUST THE SOFTWARE, IT CAN CONTINUE TO WORK EVEN WITH DEFENDER ACTIVATED.
 
 --> IF YOU CONTINUE TO DOUBT ABOUT RELIABILITY READ THE CODE YOURSELF <--
+NOBODY forces you to use my miner.
